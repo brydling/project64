@@ -160,6 +160,22 @@ void AxisDeadzone( SHORT &AxisValue, long  lDeadZoneValue, float fDeadZoneRelati
 	AxisValue = (SHORT)(value * sign);
 }
 
+short AxisCurve(SHORT input)
+{
+   short absInput = abs(input);
+   short output;
+
+   if (input < 27000)
+      output = 0.0022222222*absInput;
+   else
+      output = 0.0116178256*absInput - 253.6812900988;
+
+   if (input < 0)
+      output = -output;
+
+   return output;
+}
+
 void GetXInputControllerKeys( const int indexController, LPDWORD Keys )
 {
 	if (fnXInputGetState == NULL)
@@ -199,8 +215,12 @@ void GetXInputControllerKeys( const int indexController, LPDWORD Keys )
 		AxisDeadzone(state.Gamepad.sThumbRY, lDeadZoneValue, fDeadZoneRelation);
 	}
 
-	short LY = state.Gamepad.sThumbLY * N64_ANALOG_MAX / XC_ANALOG_MAX;
-	short LX = state.Gamepad.sThumbLX * N64_ANALOG_MAX / XC_ANALOG_MAX;
+
+   short LY = AxisCurve(state.Gamepad.sThumbLY);	
+   short LX = AxisCurve(state.Gamepad.sThumbLX);
+
+   //short LY = state.Gamepad.sThumbLY * N64_ANALOG_MAX / XC_ANALOG_MAX / 2;
+	//short LX = state.Gamepad.sThumbLX * N64_ANALOG_MAX / XC_ANALOG_MAX / 2;
 
 	short RY = state.Gamepad.sThumbRY * N64_ANALOG_MAX / XC_ANALOG_MAX;
 	short RX = state.Gamepad.sThumbRX * N64_ANALOG_MAX / XC_ANALOG_MAX;
